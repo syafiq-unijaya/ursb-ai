@@ -18,11 +18,11 @@ use App\Http\Middleware\AllowCors;
 |
 */
 
-Route::middleware([AllowCors::class])->group(function () {
+Route::prefix('api')->middleware(['api', AllowCors::class])->group(function () {
     // Authentication: issue/revoke tokens
     Route::post('/login', [AuthController::class, 'login']);
 
-    // Protected routes require a valid Sanctum token
+    // Protected routes require a valid Sanctum token under /api/v1
     Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 

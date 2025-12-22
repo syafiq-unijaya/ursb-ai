@@ -45,6 +45,26 @@ Logout (revoke current token):
 
 curl -X POST -H "Authorization: Bearer <token>" "http://your-app.test/api/v1/logout"
 
+---
+
+## Postman collection
+
+A Postman collection and environment file have been added under `docs/postman`:
+
+- `docs/postman/ursb-ai.postman_collection.json` — import into Postman as a Collection
+- `docs/postman/ursb-ai.postman_environment.json` — import as an Environment
+
+Import the environment first (set any custom `base_url`, `email`, `password`), then import the collection and run the requests in this order:
+
+1. Login (captures `token`)
+2. Create Car (stores `car_id`)
+3. Show Car
+4. Update Car
+5. Get Cars
+6. Delete Car
+7. Logout
+
+This will exercise the full token-based API flow.
 ## Notes
 
 - In production, do not set `CORS_ALLOWED_ORIGIN` to `*` — restrict it to trusted domains.

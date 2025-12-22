@@ -17,7 +17,25 @@ class CarController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return response()->json($cars);
+        // Provide a conventional API pagination envelope (data, links, meta)
+        return response()->json([
+            'data' => $cars->items(),
+            'links' => [
+                'first' => $cars->url(1),
+                'last' => $cars->url($cars->lastPage()),
+                'prev' => $cars->previousPageUrl(),
+                'next' => $cars->nextPageUrl(),
+            ],
+            'meta' => [
+                'current_page' => $cars->currentPage(),
+                'from' => $cars->firstItem(),
+                'last_page' => $cars->lastPage(),
+                'path' => $cars->path(),
+                'per_page' => $cars->perPage(),
+                'to' => $cars->lastItem(),
+                'total' => $cars->total(),
+            ],
+        ]);
     }
 
     public function show(Car $car)
