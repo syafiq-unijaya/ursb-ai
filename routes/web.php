@@ -19,10 +19,8 @@ Route::get('dashboard', function () {
 
 require __DIR__ . '/settings.php';
 
-// Load API routes so external clients can access /api/* endpoints
-// These routes are protected by Sanctum and a small CORS middleware
-require __DIR__ . '/api.php';
-
+// API routes are registered separately in App\Providers\ApiRouteServiceProvider
+// to ensure they are not wrapped in the `web` middleware group (avoids CSRF issues).
 Route::middleware('auth')->group(function () {
     Route::resource('users', UserController::class);
     Route::resource('cars', CarController::class);

@@ -4,6 +4,10 @@ namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Session\TokenMismatchException;
+
 class VerifyCsrfToken extends Middleware
 {
     /**
@@ -15,12 +19,40 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        // Allow token-based login (and trailing slash variants) without CSRF
-        'api/login',
-        'api/login/*',
-
-        // Optionally allow logout token revocation without CSRF if needed
-        'api/v1/logout',
-        'api/v1/logout/*',
+        // Keep this list minimal; API routes are loaded outside the `web`
+        // middleware group so CSRF is not applied to them.
     ];
+
+    public function handle($request, \Closure $next)
+    {
+        try {
+            return parent::handle($request, $next);
+        } catch (TokenMismatchException $e) {
+            Log::channel('single')->error('TOKEN_MISMATCH_CAUGHT', [
+                'path' => $request->path(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'headers' => [
+                    'content-type' => $request->header('content-type'),
+                    'accept' => $request->header('accept'),
+                    'cookie' => $request->header('cookie'),
+                    'origin' => $request->header('origin'),
+                    'referer' => $request->header('referer'),
+                    'user-agent' => $request->header('user-agent'),
+                ],
+                'payload' => $this->redact($request->all()),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    protected function redact(array $payload): array
+    {
+        if (isset($payload['password'])) {
+            $payload['password'] = 'REDACTED';
+        }
+
+        return $payload;
+    }
 }

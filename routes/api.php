@@ -18,9 +18,13 @@ use App\Http\Middleware\AllowCors;
 |
 */
 
-Route::prefix('api')->middleware(['api', AllowCors::class])->group(function () {
+Route::prefix('api')
+    ->middleware(['api', App\Http\Middleware\ForceAcceptJson::class, App\Http\Middleware\LogIncomingRequest::class, AllowCors::class])
+    ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+    ->group(function () {
     // Authentication: issue/revoke tokens
-    Route::post('/login', [AuthController::class, 'login']);
+    // Explicitly remove CSRF middleware for the login endpoint to avoid 419 from external clients
+    Route::post('/login', [AuthController::class, 'login'])->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
     // Protected routes require a valid Sanctum token under /api/v1
     Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
