@@ -29,6 +29,7 @@ const csrfToken = (typeof window !== 'undefined' && (window as any).csrfToken)
                     <tr>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Name</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Email</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Phone</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Created</th>
                         <th class="px-6 py-3 text-right text-sm font-semibold text-muted-foreground">Actions</th>
                     </tr>
@@ -38,6 +39,7 @@ const csrfToken = (typeof window !== 'undefined' && (window as any).csrfToken)
                         <tr v-for="user in users.data" :key="user.id">
                             <td class="px-6 py-3 text-card-foreground">{{ user.name }}</td>
                             <td class="px-6 py-3 text-card-foreground">{{ user.email }}</td>
+                            <td class="px-6 py-3 text-card-foreground">{{ user.phone_no ?? '-' }}</td>
                             <td class="px-6 py-3 text-card-foreground">{{ new Date(user.created_at).toLocaleString() }}</td>
                             <td class="px-6 py-3 text-right">
                                 <div class="flex items-center justify-end gap-2">
@@ -55,7 +57,7 @@ const csrfToken = (typeof window !== 'undefined' && (window as any).csrfToken)
                     </template>
 
                     <tr v-else>
-                        <td colspan="4" class="px-6 py-3 text-center text-sm text-muted-foreground">No users found</td>
+                        <td colspan="5" class="px-6 py-3 text-center text-sm text-muted-foreground">No users found</td>
                     </tr>
                 </tbody>
             </table>

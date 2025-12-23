@@ -11,7 +11,7 @@ import { usePage } from '@inertiajs/vue3';
 
 const props = defineProps<{ user: any }>();
 
-const form = useForm({ name: props.user.name, email: props.user.email, password: '', password_confirmation: '' });
+const form = useForm({ name: props.user.name, email: props.user.email, phone_no: props.user.phone_no ?? '', password: '', password_confirmation: '' });
 const page = usePage();
 
 // Ownership form controls
@@ -94,6 +94,12 @@ function submitOwners() {
                 <Label for="email">Email</Label>
                 <Input id="email" v-model="form.email" name="email" />
                 <InputError :message="form.errors.email" />
+            </div>
+
+            <div>
+                <Label for="phone_no">Phone</Label>
+                <Input id="phone_no" v-model="form.phone_no" name="phone_no" />
+                <InputError :message="form.errors.phone_no" />
             </div>
 
             <div>

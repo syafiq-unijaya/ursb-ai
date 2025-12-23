@@ -17,7 +17,7 @@ class UserController extends Controller
     public function index(Request $request): Response
     {
         $users = User::query()
-            ->select('id', 'name', 'email', 'created_at')
+            ->select('id', 'name', 'email', 'phone_no', 'created_at')
             ->orderBy('created_at', 'desc')
             ->paginate(15)
             ->withQueryString();
@@ -55,7 +55,7 @@ class UserController extends Controller
         });
 
         return Inertia::render('users/Show', [
-            'user' => array_merge($user->only(['id', 'name', 'email', 'created_at']), [
+            'user' => array_merge($user->only(['id', 'name', 'email', 'phone_no', 'created_at']), [
                 'cars' => $cars,
                 'available_cars' => $availableCars,
                 'is_current_user' => auth()->check() && auth()->id() === $user->id,
@@ -75,7 +75,7 @@ class UserController extends Controller
         });
 
         return Inertia::render('users/Edit', [
-            'user' => array_merge($user->only(['id', 'name', 'email']), [
+            'user' => array_merge($user->only(['id', 'name', 'email', 'phone_no']), [
                 'cars' => $cars,
                 'available_cars' => $availableCars,
             ]),

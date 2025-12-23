@@ -35,6 +35,11 @@ const csrfToken = (typeof window !== 'undefined' && (window as any).csrfToken)
                 </div>
 
                 <div>
+                    <dt class="text-sm text-muted-foreground">Phone</dt>
+                    <dd class="mt-1 text-base text-card-foreground">{{ props.user.phone_no ?? '-' }}</dd>
+                </div>
+
+                <div>
                     <dt class="text-sm text-muted-foreground">Created</dt>
                     <dd class="mt-1 text-base text-card-foreground">{{ new Date(props.user.created_at).toLocaleString() }}</dd>
                 </div>
