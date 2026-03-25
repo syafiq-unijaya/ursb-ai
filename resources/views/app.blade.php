@@ -44,6 +44,7 @@
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
+        @aichatbox
         @inertia
     </body>
 </html>
