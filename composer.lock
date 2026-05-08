@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "464dc646c3b82d5abec6d32a24b43019",
+    "content-hash": "0aa81571e01932b50b760d466e15fa00",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1296,16 +1296,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v12.55.1",
+            "version": "v12.56.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "6d9185a248d101b07eecaf8fd60b18129545fd33"
+                "reference": "dac16d424b59debb2273910dde88eb7050a2a709"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/6d9185a248d101b07eecaf8fd60b18129545fd33",
-                "reference": "6d9185a248d101b07eecaf8fd60b18129545fd33",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/dac16d424b59debb2273910dde88eb7050a2a709",
+                "reference": "dac16d424b59debb2273910dde88eb7050a2a709",
                 "shasum": ""
             },
             "require": {
@@ -1514,7 +1514,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-03-18T14:28:59+00:00"
+            "time": "2026-03-26T14:51:54+00:00"
         },
         {
             "name": "laravel/prompts",
@@ -1767,16 +1767,16 @@
         },
         {
             "name": "laravel/wayfinder",
-            "version": "v0.1.14",
+            "version": "v0.1.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/wayfinder.git",
-                "reference": "57bbd154ae69b11513d459bb97a0db19a8b7c871"
+                "reference": "25b8a947af54d35106dc04e933d05a6b7fad1133"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/wayfinder/zipball/57bbd154ae69b11513d459bb97a0db19a8b7c871",
-                "reference": "57bbd154ae69b11513d459bb97a0db19a8b7c871",
+                "url": "https://api.github.com/repos/laravel/wayfinder/zipball/25b8a947af54d35106dc04e933d05a6b7fad1133",
+                "reference": "25b8a947af54d35106dc04e933d05a6b7fad1133",
                 "shasum": ""
             },
             "require": {
@@ -1826,7 +1826,7 @@
                 "issues": "https://github.com/laravel/wayfinder/issues",
                 "source": "https://github.com/laravel/wayfinder"
             },
-            "time": "2026-02-24T12:51:07+00:00"
+            "time": "2026-03-25T20:46:44+00:00"
         },
         {
             "name": "league/commonmark",
@@ -2019,16 +2019,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "3.32.0",
+            "version": "3.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "254b1595b16b22dbddaaef9ed6ca9fdac4956725"
+                "reference": "570b8871e0ce693764434b29154c54b434905350"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/254b1595b16b22dbddaaef9ed6ca9fdac4956725",
-                "reference": "254b1595b16b22dbddaaef9ed6ca9fdac4956725",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/570b8871e0ce693764434b29154c54b434905350",
+                "reference": "570b8871e0ce693764434b29154c54b434905350",
                 "shasum": ""
             },
             "require": {
@@ -2096,9 +2096,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.32.0"
+                "source": "https://github.com/thephpleague/flysystem/tree/3.33.0"
             },
-            "time": "2026-02-25T17:01:41+00:00"
+            "time": "2026-03-25T07:59:30+00:00"
         },
         {
             "name": "league/flysystem-local",
@@ -3832,16 +3832,16 @@
         },
         {
             "name": "syafiq-unijaya/laravel-ai-chatbox",
-            "version": "0.0.2",
+            "version": "0.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/syafiq-unijaya/laravel-ai-chatbox.git",
-                "reference": "15354830980faf4882af318bb3346675abd5e973"
+                "reference": "e30baac82dc64555a333abf67effca3c2c019d20"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/syafiq-unijaya/laravel-ai-chatbox/zipball/15354830980faf4882af318bb3346675abd5e973",
-                "reference": "15354830980faf4882af318bb3346675abd5e973",
+                "url": "https://api.github.com/repos/syafiq-unijaya/laravel-ai-chatbox/zipball/e30baac82dc64555a333abf67effca3c2c019d20",
+                "reference": "e30baac82dc64555a333abf67effca3c2c019d20",
                 "shasum": ""
             },
             "require": {
@@ -3849,7 +3849,11 @@
                 "illuminate/http": "^10.0|^11.0|^12.0",
                 "illuminate/routing": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
-                "php": "^8.1"
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^10.0",
+                "phpunit/phpunit": "^11.5"
             },
             "type": "library",
             "extra": {
@@ -3871,15 +3875,29 @@
             "authors": [
                 {
                     "name": "Syafiq Unijaya",
-                    "email": "syafiqazwan.unijaya@gmail.com"
+                    "email": "syafiqazwan.unijaya@gmail.com",
+                    "homepage": "https://github.com/syafiq-unijaya",
+                    "role": "Developer"
                 }
             ],
-            "description": "A configurable AI chatbox widget for Laravel using AJAX and jQuery",
+            "description": "A configurable AI chatbox widget for Laravel. Drop-in support for Ollama, OpenAI, Groq, and any OpenAI-compatible API.",
+            "homepage": "https://github.com/syafiq-unijaya/laravel-ai-chatbox",
+            "keywords": [
+                "ai",
+                "chat",
+                "chatbot",
+                "chatbox",
+                "laravel",
+                "llm",
+                "ollama",
+                "openai",
+                "widget"
+            ],
             "support": {
                 "issues": "https://github.com/syafiq-unijaya/laravel-ai-chatbox/issues",
-                "source": "https://github.com/syafiq-unijaya/laravel-ai-chatbox/tree/0.0.2"
+                "source": "https://github.com/syafiq-unijaya/laravel-ai-chatbox"
             },
-            "time": "2026-03-25T05:24:51+00:00"
+            "time": "2026-03-27T02:11:55+00:00"
         },
         {
             "name": "symfony/clock",
