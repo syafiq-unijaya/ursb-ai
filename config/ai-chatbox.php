@@ -126,7 +126,7 @@ return [
 
     'title' => env('AI_CHATBOX_TITLE', 'AI Assistant'),
     'placeholder' => 'Type your message...',
-    'theme_color' => '#0dad35',
+    'theme_color' => '#3fc933',
     'greeting' => 'Hi! How can I help you today?',
 
 /*
@@ -289,8 +289,8 @@ return [
 |                 0.0 = deterministic, 1.0 = creative. Typical: 0.7.
 */
 
-    'max_tokens' => null,
-    'temperature' => 0.7,
+    'max_tokens' => 100,
+    'temperature' => 0.5,
 
 /*
 |--------------------------------------------------------------------------
@@ -447,6 +447,14 @@ return [
             'api_model' => env('OPENAI_MODEL', ''),
             'rag_embedding_url' => env('OPENAI_EMBEDDING_URL', ''),
             'rag_embedding_model' => env('OPENAI_EMBEDDING_MODEL', ''),
+        ],
+
+        'anthropic' => [
+            'api_url' => env('ANTH_URL', ''),
+            'api_token' => env('ANTH_API_KEY', ''),
+            'api_model' => env('ANTH_MODEL', ''),
+            'rag_embedding_url' => env('ANTH_EMBEDDING_URL', ''),
+            'rag_embedding_model' => env('ANTH_EMBEDDING_MODEL', ''),
         ],
     ],
 
