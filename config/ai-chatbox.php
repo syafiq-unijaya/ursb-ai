@@ -126,7 +126,7 @@ return [
 
     'title' => env('AI_CHATBOX_TITLE', 'AI Assistant'),
     'placeholder' => 'Type your message...',
-    'theme_color' => '#3fc933',
+    'theme_color' => '#0dad35',
     'greeting' => 'Hi! How can I help you today?',
 
 /*
@@ -283,13 +283,14 @@ return [
 | AI Response Tuning
 |--------------------------------------------------------------------------
 | 'max_tokens'  — maximum tokens in the AI reply. Lower = shorter/cheaper.
-|                 Set to null to let the model decide (API default).
+|                 Default: 300. Set to null to let the model decide (not
+|                 supported by Anthropic — its engine always requires a number).
 |
 | 'temperature' — creativity/randomness of replies.
-|                 0.0 = deterministic, 1.0 = creative. Typical: 0.7.
+|                 0.0 = deterministic, 1.0 = creative. Default: 0.5.
 */
 
-    'max_tokens' => 100,
+    'max_tokens' => 300,
     'temperature' => 0.5,
 
 /*
@@ -312,7 +313,7 @@ return [
 | 'rag_enabled'              — master switch (default: false)
 | 'rag_embedding_timeout'    — timeout in seconds for every embedding HTTP request (default: 10).
 |                              Applies to all providers. Env: AI_CHATBOX_EMBEDDING_TIMEOUT
-| 'rag_top_k'                — number of chunks to retrieve per query (default: 3)
+| 'rag_top_k'                — number of chunks to retrieve per query (default: 10)
 | 'rag_chunk_size'           — target chunk size in tokens (~4 chars/token, default: 500)
 | 'rag_chunk_overlap'        — overlap between chunks in tokens (default: 50)
 | 'rag_similarity_threshold' — minimum cosine similarity score 0.0–1.0 (default: 0.2)
@@ -328,10 +329,35 @@ return [
 
     'rag_enabled' => env('AI_CHATBOX_RAG', false),
     'rag_embedding_timeout' => (int) env('AI_CHATBOX_EMBEDDING_TIMEOUT', 10),
-    'rag_top_k' => 3,
+    'rag_top_k' => 10,
     'rag_chunk_size' => 500,
     'rag_chunk_overlap' => 50,
     'rag_similarity_threshold' => 0.2,
+    // When true (default), RAG falls back to a simple keyword search when the
+    // embedding service is unavailable or rag_embedding_url is not configured.
+    // Set to false to return no context instead of the keyword fallback.
+    'rag_keyword_fallback' => env('AI_CHATBOX_RAG_KEYWORD_FALLBACK', true),
+
+/*
+|--------------------------------------------------------------------------
+| RAG Keyword Fallback — Stop Words
+|--------------------------------------------------------------------------
+| Words stripped from the user's query before keyword search so that
+| common interrogative and function words (e.g. "what", "how", "the")
+| do not flood the results with irrelevant chunks.
+|
+| Extend this list with domain-specific noise words for your knowledge base.
+| Set to an empty array [] to disable stop-word filtering entirely.
+*/
+
+    'rag_keyword_stop_words' => [
+        'what', 'which', 'where', 'when', 'how', 'why', 'who',
+        'the', 'this', 'that', 'these', 'those',
+        'are', 'was', 'were', 'will', 'would', 'can', 'could',
+        'should', 'shall', 'may', 'might', 'must',
+        'have', 'has', 'had', 'does', 'did',
+        'for', 'and', 'but', 'not', 'you', 'your',
+    ],
     'rag_admin_middleware' => ['web', 'auth'],
     'admin_middleware' => null, // null = inherit rag_admin_middleware
 
@@ -352,10 +378,36 @@ return [
 |   php artisan vendor:publish --tag=ai-chatbox-config
 */
 
-    'rag_context_prompt' => "Use the following knowledge-base excerpts as your PRIMARY source when answering. "
-    . "Prioritize this context over your general knowledge. "
-    . "If the answer is not found in the context, say \"I don't have that information in my knowledge base.\"\n\n"
+    'rag_context_prompt' => "Answer the user's question using ONLY the knowledge-base excerpts below. "
+    . "Do not use any prior or general knowledge, and do not add facts that are not present in these excerpts. "
+    . "If the excerpts do not contain the answer, reply exactly: \"I don't have that information in my knowledge base.\" "
+    . "You may still respond naturally to greetings, thanks, and small talk.\n\n"
     . "Context:\n{chunks}",
+
+/*
+|--------------------------------------------------------------------------
+| RAG No-Context Prompt (grounding guard)
+|--------------------------------------------------------------------------
+| Injected when RAG is enabled but NO knowledge-base chunk is relevant to
+| the user's question — nothing cleared rag_similarity_threshold, there are
+| no indexed documents, or the embedding/retrieval call failed.
+|
+| Without this guard the model receives no grounding instruction at all on
+| unmatched questions, so it answers freely from its training data. That is
+| the usual cause of "the bot answered outside the knowledge base".
+|
+| This default refuses factual questions while still allowing greetings and
+| small talk. Set to an empty string to disable the guard entirely (the
+| model answers unconstrained when nothing matches).
+|
+| Publish the config to customise:
+|   php artisan vendor:publish --tag=ai-chatbox-config
+*/
+
+    'rag_no_context_prompt' => "No relevant knowledge-base entries were found for this question. "
+    . "If the user is asking for information or a factual answer, do not answer from general knowledge — "
+    . "reply exactly: \"I don't have that information in my knowledge base.\" "
+    . "You may still respond naturally to greetings, thanks, and small talk.",
 
 /*
 |--------------------------------------------------------------------------
@@ -450,11 +502,18 @@ return [
         ],
 
         'anthropic' => [
-            'api_url' => env('ANTH_URL', ''),
+            'engine' => 'anthropic', // required — selects AnthropicEngine regardless of api_url
+            'api_url' => env('ANTH_URL', 'https://api.anthropic.com/v1/messages'),
             'api_token' => env('ANTH_API_KEY', ''),
-            'api_model' => env('ANTH_MODEL', ''),
+            'api_model' => env('ANTH_MODEL', 'claude-sonnet-4-6'),
+            'anthropic_version' => env('ANTH_VERSION', '2023-06-01'),
+            // Anthropic does not offer a public embedding API.
+            // Point rag_embedding_url at an OpenAI-compatible embedding service
+            // (e.g. OpenAI, LM Studio, or Ollama /v1/embeddings) and supply its
+            // own token via rag_embedding_token when it differs from api_token.
             'rag_embedding_url' => env('ANTH_EMBEDDING_URL', ''),
             'rag_embedding_model' => env('ANTH_EMBEDDING_MODEL', ''),
+            'rag_embedding_token' => env('ANTH_EMBEDDING_TOKEN', ''),
         ],
     ],
 
