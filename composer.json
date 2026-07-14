@@ -16,7 +16,7 @@
         "laravel/sanctum": "^4.1",
         "laravel/tinker": "^2.10.1",
         "laravel/wayfinder": "^0.1.9",
-        "syafiq-unijaya/laravel-ai-chatbox": "*"
+        "developer-unijaya/laravel-ai-chatbox": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
