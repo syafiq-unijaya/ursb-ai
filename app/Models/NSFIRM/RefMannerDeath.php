@@ -3,6 +3,7 @@
 namespace App\Models\NSFIRM;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RefMannerDeath extends Model
 {
@@ -11,4 +12,12 @@ class RefMannerDeath extends Model
     protected $table = 'ref_manner_death';
 
     protected $guarded = [];
+
+    /**
+     * Deceased records with this manner of death.
+     */
+    public function deceasedInformations(): HasMany
+    {
+        return $this->hasMany(DeceasedInformation::class, 'manner_of_death', 'code');
+    }
 }

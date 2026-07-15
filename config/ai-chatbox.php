@@ -504,9 +504,9 @@ return [
         \App\AiTools\GetCarsTool::class,
 
         // NSFIRM forensic case tools (nsfirm connection):
-        \App\AiTools\GetCaseRegistrationsTool::class,
-        \App\AiTools\GetDeceasedInformationsTool::class,
-        \App\AiTools\GetCaseTypeOfInjuriesTool::class,
+        \App\AiTools\NSFIRM\GetCaseRegistrationsTool::class,
+        \App\AiTools\NSFIRM\GetDeceasedInformationsTool::class,
+        \App\AiTools\NSFIRM\GetCaseTypeOfInjuriesTool::class,
     ],
 
 /*

@@ -37,6 +37,15 @@ class CaseRegistration extends Model
     }
 
     /**
+     * The source hospital this case originated from.
+     * Linked on facilityCode (source_hospital_id -> ref_hospital.facilityCode).
+     */
+    public function sourceHospital(): BelongsTo
+    {
+        return $this->belongsTo(RefHospital::class, 'source_hospital_id', 'facilityCode');
+    }
+
+    /**
      * Deceased records attached to this case.
      */
     public function deceasedInformation(): HasMany
