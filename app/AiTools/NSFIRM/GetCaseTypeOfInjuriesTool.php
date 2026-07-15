@@ -24,15 +24,23 @@ class GetCaseTypeOfInjuriesTool implements ToolInterface
 
     /**
      * Allow-listed relationships the AI may request via the "include" argument.
+     * "fk" lists the base-table columns that must be selected for the relation to resolve.
      *
-     * @return array<string, array{load: array<int, string>, relation: string}>
+     * @return array<string, array{load: array<int, string>, relation: string, fk: array<int, string>}>
      */
     protected function allowedIncludes(): array
     {
         return [
-            'case' => ['load' => ['caseRegistration.status:id,status_name', 'caseRegistration.sourceHospital:id,name,facilityCode,state_code'], 'relation' => 'caseRegistration'],
+            'case' => ['load' => ['caseRegistration.status:id,status_name', 'caseRegistration.sourceHospital:id,name,facilityCode,state_code'], 'relation' => 'caseRegistration', 'fk' => ['case_id']],
         ];
     }
+
+    /**
+     * Columns always returned. Foreign keys needed by an "include" are added on demand.
+     *
+     * @var array<int, string>
+     */
+    protected array $baseColumns = ['id', 'case_id', 'injury_code', 'active'];
 
     public function parameters(): array
     {
@@ -64,10 +72,17 @@ class GetCaseTypeOfInjuriesTool implements ToolInterface
     {
         $query = CaseTypeOfInjury::query()->with('injury:id,code,name,short_name');
 
+        // Requested includes: eager-load them AND make sure their foreign keys are selected,
+        // otherwise the belongsTo relation cannot resolve and comes back null.
+        $columns = $this->baseColumns;
         $includes = $this->resolveIncludes($arguments);
         foreach ($includes as $cfg) {
             $query->with($cfg['load']);
+            foreach ($cfg['fk'] as $col) {
+                $columns[] = $col;
+            }
         }
+        $columns = array_values(array_unique($columns));
 
         if (isset($arguments['case_id'])) {
             $query->where('case_id', $arguments['case_id']);
@@ -84,7 +99,7 @@ class GetCaseTypeOfInjuriesTool implements ToolInterface
         $limit = min(max((int) ($arguments['limit'] ?? 1000), 1), 1000);
 
         $rows = $query->limit($limit)
-            ->get(['id', 'case_id', 'injury_code', 'active'])
+            ->get($columns)
             ->map(function (CaseTypeOfInjury $row) use ($includes) {
                 $data = $row->attributesToArray();
                 $data['injury_name'] = $row->injury?->name;

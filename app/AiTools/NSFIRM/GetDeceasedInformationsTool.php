@@ -9,6 +9,17 @@ use Illuminate\Http\Request;
 
 class GetDeceasedInformationsTool implements ToolInterface
 {
+    /**
+     * Columns always returned. Foreign keys needed by an "include" are added on demand.
+     *
+     * @var array<int, string>
+     */
+    protected array $baseColumns = [
+        'id', 'case_id', 'name', 'id_number', 'age', 'gender_code', 'nationality_code',
+        'state_code', 'city_code', 'religion_code', 'date_of_birth', 'date_of_death', 'time_of_death',
+        'cause_of_death', 'manner_of_death', 'post_morten_no', 'post_morten_date',
+    ];
+
     public function name(): string
     {
         return 'get_deceased_informations';
@@ -18,42 +29,42 @@ class GetDeceasedInformationsTool implements ToolInterface
     {
         return 'Look up deceased person records for forensic cases in the NSFIRM system. '
             . 'Filter by case id, IC/id number, name (partial), gender, nationality, state, city, '
-            . 'manner of death, or date of death. Reference codes are resolved to readable labels '
-            . '(gender, nationality, state, city, manner of death). Use "include" to also pull other '
-            . 'related lookups (religion, marital status, occupation, next-of-kin, ward, parent case, '
+            . 'religion, manner of death, or date of death. Reference codes are resolved to readable labels '
+            . '(gender, nationality, state, city, religion, manner of death). Use "include" to also pull other '
+            . 'related lookups (marital status, ethnic, education, occupation, next-of-kin, ward, parent case, '
             . 'etc.) nested under each row\'s "relations" key.';
     }
 
     /**
      * Allow-listed relationships the AI may request via the "include" argument.
+     * "fk" lists the base-table columns that must be selected for the relation to resolve.
      *
-     * @return array<string, array{load: array<int, string>, relation: string}>
+     * @return array<string, array{load: array<int, string>, relation: string, fk: array<int, string>}>
      */
     protected function allowedIncludes(): array
     {
         return [
-            'case' => ['load' => ['caseRegistration.status:id,status_name', 'caseRegistration.sourceHospital:id,name,facilityCode,state_code'], 'relation' => 'caseRegistration'],
-            'identification_type' => ['load' => ['identificationType'], 'relation' => 'identificationType'],
-            'postcode' => ['load' => ['postcode'], 'relation' => 'postcode'],
-            'marital_status' => ['load' => ['maritalStatus'], 'relation' => 'maritalStatus'],
-            'religion' => ['load' => ['religion'], 'relation' => 'religion'],
-            'ethnic' => ['load' => ['ethnic'], 'relation' => 'ethnic'],
-            'education_level' => ['load' => ['educationLevel'], 'relation' => 'educationLevel'],
-            'occupation_status' => ['load' => ['occupationStatus'], 'relation' => 'occupationStatus'],
-            'occupation_sector' => ['load' => ['occupationSector'], 'relation' => 'occupationSector'],
-            'occupation_type' => ['load' => ['occupationType'], 'relation' => 'occupationType'],
-            'next_of_kin_relationship' => ['load' => ['nextOfKinRelationship'], 'relation' => 'nextOfKinRelationship'],
-            'next_of_kin_identification_type' => ['load' => ['nextOfKinIdentificationType'], 'relation' => 'nextOfKinIdentificationType'],
-            'next_of_kin_city' => ['load' => ['nextOfKinCity'], 'relation' => 'nextOfKinCity'],
-            'next_of_kin_state' => ['load' => ['nextOfKinState'], 'relation' => 'nextOfKinState'],
-            'next_of_kin_postcode' => ['load' => ['nextOfKinPostcode'], 'relation' => 'nextOfKinPostcode'],
-            'death_presentation' => ['load' => ['deathPresentation'], 'relation' => 'deathPresentation'],
-            'ward' => ['load' => ['ward'], 'relation' => 'ward'],
-            'certified_by_designation' => ['load' => ['certifiedByDesignation'], 'relation' => 'certifiedByDesignation'],
-            'certified_by_certifier_designation' => ['load' => ['certifiedByCertifierDesignation'], 'relation' => 'certifiedByCertifierDesignation'],
-            'place_of_incident_city' => ['load' => ['placeOfIncidentCity'], 'relation' => 'placeOfIncidentCity'],
-            'place_of_incident_state' => ['load' => ['placeOfIncidentState'], 'relation' => 'placeOfIncidentState'],
-            'place_of_incident' => ['load' => ['placeOfIncident'], 'relation' => 'placeOfIncident'],
+            'case' => ['load' => ['caseRegistration.status:id,status_name', 'caseRegistration.sourceHospital:id,name,facilityCode,state_code'], 'relation' => 'caseRegistration', 'fk' => ['case_id']],
+            'identification_type' => ['load' => ['identificationType'], 'relation' => 'identificationType', 'fk' => ['identification_type']],
+            'postcode' => ['load' => ['postcode'], 'relation' => 'postcode', 'fk' => ['postcode_code']],
+            'marital_status' => ['load' => ['maritalStatus'], 'relation' => 'maritalStatus', 'fk' => ['marital_status_code']],
+            'ethnic' => ['load' => ['ethnic'], 'relation' => 'ethnic', 'fk' => ['ethnic_code']],
+            'education_level' => ['load' => ['educationLevel'], 'relation' => 'educationLevel', 'fk' => ['education_level_code']],
+            'occupation_status' => ['load' => ['occupationStatus'], 'relation' => 'occupationStatus', 'fk' => ['occupation_status']],
+            'occupation_sector' => ['load' => ['occupationSector'], 'relation' => 'occupationSector', 'fk' => ['occupation_sector']],
+            'occupation_type' => ['load' => ['occupationType'], 'relation' => 'occupationType', 'fk' => ['occupation_type']],
+            'next_of_kin_relationship' => ['load' => ['nextOfKinRelationship'], 'relation' => 'nextOfKinRelationship', 'fk' => ['next_of_kin_relationship_code']],
+            'next_of_kin_identification_type' => ['load' => ['nextOfKinIdentificationType'], 'relation' => 'nextOfKinIdentificationType', 'fk' => ['next_of_kin_identification_type']],
+            'next_of_kin_city' => ['load' => ['nextOfKinCity'], 'relation' => 'nextOfKinCity', 'fk' => ['next_of_kin_city_code']],
+            'next_of_kin_state' => ['load' => ['nextOfKinState'], 'relation' => 'nextOfKinState', 'fk' => ['next_of_kin_state_code']],
+            'next_of_kin_postcode' => ['load' => ['nextOfKinPostcode'], 'relation' => 'nextOfKinPostcode', 'fk' => ['next_of_kin_postcode_code']],
+            'death_presentation' => ['load' => ['deathPresentation'], 'relation' => 'deathPresentation', 'fk' => ['death_presentation']],
+            'ward' => ['load' => ['ward'], 'relation' => 'ward', 'fk' => ['ward_no']],
+            'certified_by_designation' => ['load' => ['certifiedByDesignation'], 'relation' => 'certifiedByDesignation', 'fk' => ['certified_by_designation_code']],
+            'certified_by_certifier_designation' => ['load' => ['certifiedByCertifierDesignation'], 'relation' => 'certifiedByCertifierDesignation', 'fk' => ['certified_by_certifier_designation_code']],
+            'place_of_incident_city' => ['load' => ['placeOfIncidentCity'], 'relation' => 'placeOfIncidentCity', 'fk' => ['place_of_incident_city_code']],
+            'place_of_incident_state' => ['load' => ['placeOfIncidentState'], 'relation' => 'placeOfIncidentState', 'fk' => ['place_of_incident_state_code']],
+            'place_of_incident' => ['load' => ['placeOfIncident'], 'relation' => 'placeOfIncident', 'fk' => ['place_of_incident_code']],
         ];
     }
 
@@ -69,6 +80,8 @@ class GetDeceasedInformationsTool implements ToolInterface
                 'nationality_code' => ['type' => 'string', 'description' => 'Filter by nationality/country code (ref_country).'],
                 'state_code' => ['type' => 'string', 'description' => 'Filter by state code (ref_state).'],
                 'city_code' => ['type' => 'string', 'description' => 'Filter by city code (ref_city).'],
+                'religion' => ['type' => 'string', 'description' => 'Filter by religion name (partial match, e.g. "Islam", "Buddha").'],
+                'religion_code' => ['type' => 'string', 'description' => 'Filter by religion code (ref_religion).'],
                 'manner_of_death' => ['type' => 'string', 'description' => 'Filter by manner of death code (ref_manner_death).'],
                 'date_of_death' => ['type' => 'string', 'description' => 'Filter by exact date of death (YYYY-MM-DD).'],
                 'date_of_death_from' => ['type' => 'string', 'description' => 'Date of death on/after this date (YYYY-MM-DD).'],
@@ -77,12 +90,13 @@ class GetDeceasedInformationsTool implements ToolInterface
                     'type' => 'array',
                     'items' => ['type' => 'string', 'enum' => array_keys($this->allowedIncludes())],
                     'description' => 'Related lookups to eager-load, returned under each row\'s "relations" key. '
-                        . 'Options: case, identification_type, postcode, marital_status, religion, ethnic, '
+                        . 'Options: case, identification_type, postcode, marital_status, ethnic, '
                         . 'education_level, occupation_status, occupation_sector, occupation_type, '
                         . 'next_of_kin_relationship, next_of_kin_identification_type, next_of_kin_city, '
                         . 'next_of_kin_state, next_of_kin_postcode, death_presentation, ward, '
                         . 'certified_by_designation, certified_by_certifier_designation, '
-                        . 'place_of_incident_city, place_of_incident_state, place_of_incident.',
+                        . 'place_of_incident_city, place_of_incident_state, place_of_incident. '
+                        . '(gender, nationality, state, city, religion and manner of death are always returned as labels.)',
                 ],
                 'limit' => ['type' => 'integer', 'description' => 'Max rows to return (default 1000, max 1000).'],
             ],
@@ -103,13 +117,21 @@ class GetDeceasedInformationsTool implements ToolInterface
             'nationality:id,code,name',
             'state:id,code,name',
             'city:id,code,name',
+            'religion:id,code,name',
             'mannerOfDeath:id,code,name',
         ]);
 
+        // Requested includes: eager-load them AND make sure their foreign keys are selected,
+        // otherwise the belongsTo relation cannot resolve and comes back null.
+        $columns = $this->baseColumns;
         $includes = $this->resolveIncludes($arguments);
         foreach ($includes as $cfg) {
             $query->with($cfg['load']);
+            foreach ($cfg['fk'] as $col) {
+                $columns[] = $col;
+            }
         }
+        $columns = array_values(array_unique($columns));
 
         // TODO: scope this query to the caller's authorised cases if required.
         if (isset($arguments['case_id'])) {
@@ -133,6 +155,14 @@ class GetDeceasedInformationsTool implements ToolInterface
         if (isset($arguments['city_code'])) {
             $query->where('city_code', $arguments['city_code']);
         }
+        if (isset($arguments['religion_code'])) {
+            $query->where('religion_code', $arguments['religion_code']);
+        }
+        if (isset($arguments['religion'])) {
+            $query->whereHas('religion', function ($q) use ($arguments) {
+                $q->where('name', 'like', '%' . $arguments['religion'] . '%');
+            });
+        }
         if (isset($arguments['manner_of_death'])) {
             $query->where('manner_of_death', $arguments['manner_of_death']);
         }
@@ -150,17 +180,14 @@ class GetDeceasedInformationsTool implements ToolInterface
 
         $rows = $query->latest('date_of_death')
             ->limit($limit)
-            ->get([
-                'id', 'case_id', 'name', 'id_number', 'age', 'gender_code', 'nationality_code',
-                'state_code', 'city_code', 'date_of_birth', 'date_of_death', 'time_of_death',
-                'cause_of_death', 'manner_of_death', 'post_morten_no', 'post_morten_date',
-            ])
+            ->get($columns)
             ->map(function (DeceasedInformation $d) use ($includes) {
                 $data = $d->attributesToArray();
                 $data['gender'] = $d->gender?->name;
                 $data['nationality'] = $d->nationality?->name;
                 $data['state'] = $d->state?->name;
                 $data['city'] = $d->city?->name;
+                $data['religion'] = $d->religion?->name;
                 $data['manner_of_death_label'] = $d->mannerOfDeath?->name;
                 $data = $this->attachIncludes($data, $d, $includes);
 
@@ -176,7 +203,7 @@ class GetDeceasedInformationsTool implements ToolInterface
     /**
      * Resolve the caller's requested includes against the allow-list.
      *
-     * @return array<string, array{load: array<int, string>, relation: string}>
+     * @return array<string, array{load: array<int, string>, relation: string, fk: array<int, string>}>
      */
     protected function resolveIncludes(array $arguments): array
     {
@@ -194,7 +221,7 @@ class GetDeceasedInformationsTool implements ToolInterface
      * Attach the loaded includes to a serialized row under "relations".
      *
      * @param  array<string, mixed>  $data
-     * @param  array<string, array{load: array<int, string>, relation: string}>  $includes
+     * @param  array<string, array{load: array<int, string>, relation: string, fk: array<int, string>}>  $includes
      * @return array<string, mixed>
      */
     protected function attachIncludes(array $data, Model $model, array $includes): array

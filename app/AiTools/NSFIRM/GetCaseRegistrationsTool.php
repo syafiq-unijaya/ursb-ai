@@ -25,19 +25,31 @@ class GetCaseRegistrationsTool implements ToolInterface
 
     /**
      * Allow-listed relationships the AI may request via the "include" argument.
-     * key = name exposed to the model, load = eager-load path(s), relation = accessor.
+     * key = name exposed to the model, load = eager-load path(s), relation = accessor,
+     * fk = base-table columns that must be selected for the relation to resolve.
      *
-     * @return array<string, array{load: array<int, string>, relation: string}>
+     * @return array<string, array{load: array<int, string>, relation: string, fk: array<int, string>}>
      */
     protected function allowedIncludes(): array
     {
         return [
-            'specific_doctor' => ['load' => ['specificDoctor:id,name,email'], 'relation' => 'specificDoctor'],
-            'source_hospital' => ['load' => ['sourceHospital.state:id,code,name'], 'relation' => 'sourceHospital'],
-            'deceased_information' => ['load' => ['deceasedInformation'], 'relation' => 'deceasedInformation'],
-            'type_of_injuries' => ['load' => ['typeOfInjuries.injury:id,code,name,short_name'], 'relation' => 'typeOfInjuries'],
+            'specific_doctor' => ['load' => ['specificDoctor:id,name,email'], 'relation' => 'specificDoctor', 'fk' => ['specific_doctor']],
+            'source_hospital' => ['load' => ['sourceHospital.state:id,code,name'], 'relation' => 'sourceHospital', 'fk' => ['source_hospital_id']],
+            'deceased_information' => ['load' => ['deceasedInformation'], 'relation' => 'deceasedInformation', 'fk' => ['case_id']],
+            'type_of_injuries' => ['load' => ['typeOfInjuries.injury:id,code,name,short_name'], 'relation' => 'typeOfInjuries', 'fk' => ['case_id']],
         ];
     }
+
+    /**
+     * Columns always returned. Foreign keys needed by an "include" are added on demand.
+     *
+     * @var array<int, string>
+     */
+    protected array $baseColumns = [
+        'case_id', 'case_type', 'case_number', 'status_id', 'source_hospital_id',
+        'register_by', 'verify_by', 'submitted_by', 'verification_date',
+        'submitted_date', 'date_register', 'court_ruling',
+    ];
 
     public function parameters(): array
     {
@@ -79,10 +91,17 @@ class GetCaseRegistrationsTool implements ToolInterface
             'sourceHospital:id,name,facilityCode,state_code',
         ]);
 
+        // Requested includes: eager-load them AND make sure their foreign keys are selected,
+        // otherwise the belongsTo relation cannot resolve and comes back null.
+        $columns = $this->baseColumns;
         $includes = $this->resolveIncludes($arguments);
         foreach ($includes as $cfg) {
             $query->with($cfg['load']);
+            foreach ($cfg['fk'] as $col) {
+                $columns[] = $col;
+            }
         }
+        $columns = array_values(array_unique($columns));
 
         // TODO: scope this query to the current user if cases are owned per user.
         if (isset($arguments['case_id'])) {
@@ -116,11 +135,7 @@ class GetCaseRegistrationsTool implements ToolInterface
 
         $rows = $query->latest('date_register')
             ->limit($limit)
-            ->get([
-                'case_id', 'case_type', 'case_number', 'status_id', 'source_hospital_id',
-                'register_by', 'verify_by', 'submitted_by', 'verification_date',
-                'submitted_date', 'date_register', 'court_ruling',
-            ])
+            ->get($columns)
             ->map(function (CaseRegistration $case) use ($includes) {
                 $data = $case->attributesToArray();
                 $data['status_name'] = $case->status?->status_name;
@@ -139,7 +154,7 @@ class GetCaseRegistrationsTool implements ToolInterface
     /**
      * Resolve the caller's requested includes against the allow-list.
      *
-     * @return array<string, array{load: array<int, string>, relation: string}>
+     * @return array<string, array{load: array<int, string>, relation: string, fk: array<int, string>}>
      */
     protected function resolveIncludes(array $arguments): array
     {
@@ -157,7 +172,7 @@ class GetCaseRegistrationsTool implements ToolInterface
      * Attach the loaded includes to a serialized row under "relations".
      *
      * @param  array<string, mixed>  $data
-     * @param  array<string, array{load: array<int, string>, relation: string}>  $includes
+     * @param  array<string, array{load: array<int, string>, relation: string, fk: array<int, string>}>  $includes
      * @return array<string, mixed>
      */
     protected function attachIncludes(array $data, Model $model, array $includes): array
