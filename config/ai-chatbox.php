@@ -507,6 +507,8 @@ return [
         \App\AiTools\NSFIRM\GetCaseRegistrationsTool::class,
         \App\AiTools\NSFIRM\GetDeceasedInformationsTool::class,
         \App\AiTools\NSFIRM\GetCaseTypeOfInjuriesTool::class,
+        \App\AiTools\NSFIRM\GetNsfirmReferencesTool::class,
+        \App\AiTools\NSFIRM\GetNsfirmStatisticsTool::class,
     ],
 
 /*

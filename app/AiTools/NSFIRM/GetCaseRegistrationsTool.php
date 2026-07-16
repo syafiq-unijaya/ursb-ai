@@ -60,6 +60,7 @@ class GetCaseRegistrationsTool implements ToolInterface
                 'case_type' => ['type' => 'integer', 'description' => 'Filter by case type code.'],
                 'case_number' => ['type' => 'integer', 'description' => 'Filter by case number.'],
                 'status_id' => ['type' => 'integer', 'description' => 'Filter by workflow status id (see ref_status).'],
+                'status' => ['type' => 'string', 'description' => 'Filter by workflow status name (partial match, e.g. "Draft", "Verified").'],
                 'source_hospital_id' => ['type' => 'string', 'description' => 'Filter by source hospital id / facility code (e.g. "11-05060009").'],
                 'hospital_name' => ['type' => 'string', 'description' => 'Filter by source hospital name (partial match, e.g. "Seremban").'],
                 'court_ruling' => ['type' => 'integer', 'description' => 'Filter by court ruling flag.'],
@@ -115,6 +116,9 @@ class GetCaseRegistrationsTool implements ToolInterface
         }
         if (isset($arguments['status_id'])) {
             $query->where('status_id', $arguments['status_id']);
+        }
+        if (isset($arguments['status'])) {
+            $query->whereHas('status', fn ($q) => $q->where('status_name', 'like', '%' . $arguments['status'] . '%'));
         }
         if (isset($arguments['source_hospital_id'])) {
             $query->where('source_hospital_id', $arguments['source_hospital_id']);

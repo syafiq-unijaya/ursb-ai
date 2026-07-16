@@ -76,12 +76,17 @@ class GetDeceasedInformationsTool implements ToolInterface
                 'case_id' => ['type' => 'string', 'description' => 'Filter by the case id.'],
                 'id_number' => ['type' => 'string', 'description' => 'Exact or partial IC / id number.'],
                 'name' => ['type' => 'string', 'description' => 'Full or partial name of the deceased.'],
+                'gender' => ['type' => 'string', 'description' => 'Filter by gender name (partial match, e.g. "Male").'],
                 'gender_code' => ['type' => 'string', 'description' => 'Filter by gender code (ref_gender).'],
+                'nationality' => ['type' => 'string', 'description' => 'Filter by nationality/country name (partial match, e.g. "Malaysia").'],
                 'nationality_code' => ['type' => 'string', 'description' => 'Filter by nationality/country code (ref_country).'],
+                'state' => ['type' => 'string', 'description' => 'Filter by state name (partial match, e.g. "Selangor").'],
                 'state_code' => ['type' => 'string', 'description' => 'Filter by state code (ref_state).'],
+                'city' => ['type' => 'string', 'description' => 'Filter by city name (partial match).'],
                 'city_code' => ['type' => 'string', 'description' => 'Filter by city code (ref_city).'],
                 'religion' => ['type' => 'string', 'description' => 'Filter by religion name (partial match, e.g. "Islam", "Buddha").'],
                 'religion_code' => ['type' => 'string', 'description' => 'Filter by religion code (ref_religion).'],
+                'manner_of_death_name' => ['type' => 'string', 'description' => 'Filter by manner of death name (partial match, e.g. "Suicide", "Homicide").'],
                 'manner_of_death' => ['type' => 'string', 'description' => 'Filter by manner of death code (ref_manner_death).'],
                 'date_of_death' => ['type' => 'string', 'description' => 'Filter by exact date of death (YYYY-MM-DD).'],
                 'date_of_death_from' => ['type' => 'string', 'description' => 'Date of death on/after this date (YYYY-MM-DD).'],
@@ -146,25 +151,38 @@ class GetDeceasedInformationsTool implements ToolInterface
         if (isset($arguments['gender_code'])) {
             $query->where('gender_code', $arguments['gender_code']);
         }
+        if (isset($arguments['gender'])) {
+            $query->whereHas('gender', fn ($q) => $q->where('name', 'like', '%' . $arguments['gender'] . '%'));
+        }
         if (isset($arguments['nationality_code'])) {
             $query->where('nationality_code', $arguments['nationality_code']);
+        }
+        if (isset($arguments['nationality'])) {
+            $query->whereHas('nationality', fn ($q) => $q->where('name', 'like', '%' . $arguments['nationality'] . '%'));
         }
         if (isset($arguments['state_code'])) {
             $query->where('state_code', $arguments['state_code']);
         }
+        if (isset($arguments['state'])) {
+            $query->whereHas('state', fn ($q) => $q->where('name', 'like', '%' . $arguments['state'] . '%'));
+        }
         if (isset($arguments['city_code'])) {
             $query->where('city_code', $arguments['city_code']);
+        }
+        if (isset($arguments['city'])) {
+            $query->whereHas('city', fn ($q) => $q->where('name', 'like', '%' . $arguments['city'] . '%'));
         }
         if (isset($arguments['religion_code'])) {
             $query->where('religion_code', $arguments['religion_code']);
         }
         if (isset($arguments['religion'])) {
-            $query->whereHas('religion', function ($q) use ($arguments) {
-                $q->where('name', 'like', '%' . $arguments['religion'] . '%');
-            });
+            $query->whereHas('religion', fn ($q) => $q->where('name', 'like', '%' . $arguments['religion'] . '%'));
         }
         if (isset($arguments['manner_of_death'])) {
             $query->where('manner_of_death', $arguments['manner_of_death']);
+        }
+        if (isset($arguments['manner_of_death_name'])) {
+            $query->whereHas('mannerOfDeath', fn ($q) => $q->where('name', 'like', '%' . $arguments['manner_of_death_name'] . '%'));
         }
         if (isset($arguments['date_of_death'])) {
             $query->whereDate('date_of_death', $arguments['date_of_death']);

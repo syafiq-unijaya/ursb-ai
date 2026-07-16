@@ -49,6 +49,7 @@ class GetCaseTypeOfInjuriesTool implements ToolInterface
             'properties' => [
                 'case_id' => ['type' => 'string', 'description' => 'Filter by the case id the injuries belong to.'],
                 'injury_code' => ['type' => 'string', 'description' => 'Filter by a specific injury code (ref_type_of_injury).'],
+                'injury' => ['type' => 'string', 'description' => 'Filter by injury type name (partial match, e.g. "Neck", "Head Injury").'],
                 'active' => ['type' => 'boolean', 'description' => 'Only active injury rows (default true).'],
                 'include' => [
                     'type' => 'array',
@@ -89,6 +90,9 @@ class GetCaseTypeOfInjuriesTool implements ToolInterface
         }
         if (isset($arguments['injury_code'])) {
             $query->where('injury_code', $arguments['injury_code']);
+        }
+        if (isset($arguments['injury'])) {
+            $query->whereHas('injury', fn ($q) => $q->where('name', 'like', '%' . $arguments['injury'] . '%'));
         }
         // Default to active rows unless the caller explicitly asks for all.
         $active = $arguments['active'] ?? true;
