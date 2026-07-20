@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\CaseTypeOfInjury;
@@ -49,21 +48,21 @@ class GetMortalityRateTool implements ToolInterface
      * @var array<string, string>
      */
     protected array $ethnicToPopulationGroup = [
-        '01' => 'bumi_malay',      // Melayu
-        '02' => 'chinese',         // Cina
-        '03' => 'indian',          // India
-        '04' => 'bumi_other',      // Orang Asli Semenanjung
-        '05' => 'bumi_other',      // Bajau
-        '06' => 'bumi_other',      // Dusun
-        '07' => 'bumi_other',      // Kadazan
-        '08' => 'bumi_other',      // Murut
-        '10' => 'bumi_other',      // Bumiputera Sabah Lain
-        '11' => 'bumi_other',      // Melanau
-        '12' => 'bumi_other',      // Kedayan
-        '13' => 'bumi_other',      // Iban
-        '14' => 'bumi_other',      // Bidayuh
-        '15' => 'bumi_other',      // Other Bumiputera (Sarawak)
-        '99' => 'other_citizen',   // Lain-Lain
+        '01' => 'bumi_malay',       // Melayu
+        '02' => 'chinese',          // Cina
+        '03' => 'indian',           // India
+        '04' => 'bumi_other',       // Orang Asli Semenanjung
+        '05' => 'bumi_other',       // Bajau
+        '06' => 'bumi_other',       // Dusun
+        '07' => 'bumi_other',       // Kadazan
+        '08' => 'bumi_other',       // Murut
+        '10' => 'bumi_other',       // Bumiputera Sabah Lain
+        '11' => 'bumi_other',       // Melanau
+        '12' => 'bumi_other',       // Kedayan
+        '13' => 'bumi_other',       // Iban
+        '14' => 'bumi_other',       // Bidayuh
+        '15' => 'bumi_other',       // Other Bumiputera (Sarawak)
+        '99' => 'other_citizen',    // Lain-Lain
         '17' => 'other_noncitizen', // Bukan Warganegara
     ];
 
@@ -186,7 +185,7 @@ class GetMortalityRateTool implements ToolInterface
         if (isset($arguments['source_hospital_id'])) {
             $query->where('source_hospital_id', $arguments['source_hospital_id']);
         }
-        if (! empty($arguments['probable_suicide'])) {
+        if (!empty($arguments['probable_suicide'])) {
             $query->where('manner_of_death', '03');
         } elseif (isset($arguments['manner_of_death'])) {
             $query->where('manner_of_death', $arguments['manner_of_death']);
@@ -195,9 +194,9 @@ class GetMortalityRateTool implements ToolInterface
             // Injury type lives outside the view, so restrict by the active rows
             // in case_type_of_injury for that code.
             $query->whereIn('case_id', CaseTypeOfInjury::query()
-                ->where('injury_code', strtoupper((string) $arguments['injury_code']))
-                ->where('active', 1)
-                ->select('case_id'));
+                    ->where('injury_code', strtoupper((string) $arguments['injury_code']))
+                    ->where('active', 1)
+                    ->select('case_id'));
         }
 
         return $query;
@@ -260,7 +259,7 @@ class GetMortalityRateTool implements ToolInterface
             'district' => $this->byGeography($cases, $arguments, $populationYear, 'district'),
         };
 
-        $unmatched = array_values(array_filter($rows, fn ($r) => ($r['population'] ?? 0) === 0 && $r['cases'] > 0));
+        $unmatched = array_values(array_filter($rows, fn($r) => ($r['population'] ?? 0) === 0 && $r['cases'] > 0));
         $rows = array_slice($rows, 0, $limit);
 
         $result = ['count' => count($rows), 'rates' => $rows];
@@ -283,8 +282,8 @@ class GetMortalityRateTool implements ToolInterface
         foreach ($counts as $code => $count) {
             // Only L and P have a census subgroup; R (Undetermined) and 00 do not.
             $population = isset($this->genderNames[$code])
-                ? $this->populationFor($arguments, $populationYear, ['gender_code' => $code])
-                : 0;
+            ? $this->populationFor($arguments, $populationYear, ['gender_code' => $code])
+            : 0;
             $rows[] = [
                 'gender_code' => $code,
                 'gender' => $this->genderNames[$code] ?? ($code === 'R' ? 'Undetermined' : 'No Information'),
@@ -424,7 +423,7 @@ class GetMortalityRateTool implements ToolInterface
             ];
         }
 
-        usort($rows, fn ($a, $b) => $b['mortality_rate_per_100k'] <=> $a['mortality_rate_per_100k']);
+        usort($rows, fn($a, $b) => $b['mortality_rate_per_100k'] <=> $a['mortality_rate_per_100k']);
 
         return $rows;
     }
@@ -479,7 +478,7 @@ class GetMortalityRateTool implements ToolInterface
             $context['breakdown_by'] = $breakdown;
             $context['denominator'] = 'Each subgroup is divided by its own population, not the total.';
         }
-        if (! empty($arguments['probable_suicide'])) {
+        if (!empty($arguments['probable_suicide'])) {
             $context['manner_of_death'] = '03 (Probable Suicide)';
         } elseif (isset($arguments['manner_of_death'])) {
             $context['manner_of_death'] = (string) $arguments['manner_of_death'];

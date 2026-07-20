@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools;
 
 use DeveloperUnijaya\AiChatbox\Orchestration\Contracts\ToolInterface;

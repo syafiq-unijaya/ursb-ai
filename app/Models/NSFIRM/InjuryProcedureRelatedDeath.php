@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\NSFIRM;
 
 use Illuminate\Database\Eloquent\Model;

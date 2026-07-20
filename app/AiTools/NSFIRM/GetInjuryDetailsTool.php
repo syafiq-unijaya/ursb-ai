@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\CaseTypeOfInjury;
@@ -7,8 +6,8 @@ use App\Models\NSFIRM\InjuryAnimalRelatedDeath;
 use App\Models\NSFIRM\InjuryAsphyxiaDeath;
 use App\Models\NSFIRM\InjuryBlastInjuries;
 use App\Models\NSFIRM\InjuryBluntForceTrauma;
-use App\Models\NSFIRM\InjuryCoPoisoning;
 use App\Models\NSFIRM\InjuryCompressionPressureOfNeck;
+use App\Models\NSFIRM\InjuryCoPoisoning;
 use App\Models\NSFIRM\InjuryDrowning;
 use App\Models\NSFIRM\InjuryElectrocution;
 use App\Models\NSFIRM\InjuryFallFromHeight;
@@ -88,8 +87,8 @@ class GetInjuryDetailsTool implements ToolInterface
                 'include_children' => [
                     'type' => 'boolean',
                     'description' => 'Also return the multi-row sub-detail (body regions injured, or the '
-                        . 'land/air/water breakdown for T1) under each row\'s "relations" key. '
-                        . 'Only T1, T4, T7, T8, T9, T10, T11 and T13 have any.',
+                    . 'land/air/water breakdown for T1) under each row\'s "relations" key. '
+                    . 'Only T1, T4, T7, T8, T9, T10, T11 and T13 have any.',
                 ],
                 'include_case' => ['type' => 'boolean', 'description' => 'Also return the parent case registration with its status and source hospital.'],
                 'limit' => ['type' => 'integer', 'description' => 'Max rows to return (default 200, max 1000). Detail rows are wide, so keep this small.'],
@@ -109,7 +108,7 @@ class GetInjuryDetailsTool implements ToolInterface
         $types = $this->injuryTypes();
         $code = strtoupper((string) ($arguments['injury_code'] ?? ''));
 
-        if (! isset($types[$code])) {
+        if (!isset($types[$code])) {
             return [
                 'error' => 'Unknown injury_code. Choose one of: ' . implode(', ', array_keys($types)) . '.',
             ];
@@ -119,19 +118,19 @@ class GetInjuryDetailsTool implements ToolInterface
         $model = $config['model'];
         $query = $model::query();
 
-        $withChildren = ! empty($arguments['include_children']) && $config['children'] !== [];
+        $withChildren = !empty($arguments['include_children']) && $config['children'] !== [];
         if ($withChildren) {
             // Each child row resolves its own code against its ref_t* lookup.
-            $query->with(array_map(fn (string $rel) => $rel . '.ref:id,code,name', $config['children']));
+            $query->with(array_map(fn(string $rel) => $rel . '.ref:id,code,name', $config['children']));
         }
-        if (! empty($arguments['include_case'])) {
+        if (!empty($arguments['include_case'])) {
             $query->with(['caseRegistration.status:id,status_name', 'caseRegistration.sourceHospital:id,name,facilityCode,state_code']);
         }
 
         if (isset($arguments['case_id'])) {
             $query->where('case_id', $arguments['case_id']);
         }
-        if (! empty($arguments['completed_only'])) {
+        if (!empty($arguments['completed_only'])) {
             $query->where('completion_flag', 1);
         }
 
@@ -142,7 +141,7 @@ class GetInjuryDetailsTool implements ToolInterface
             // model sees the findings that were actually recorded, not 40 nulls.
             $data = array_filter(
                 $row->attributesToArray(),
-                fn ($value) => $value !== null && $value !== ''
+                fn($value) => $value !== null && $value !== ''
             );
             $data['injury_code'] = $code;
             $data['injury_name'] = $config['name'];
@@ -150,11 +149,11 @@ class GetInjuryDetailsTool implements ToolInterface
             if ($withChildren) {
                 foreach ($config['children'] as $relation) {
                     $data['relations'][$relation] = $row->{$relation}
-                        ->map(fn ($child) => ['code' => $child->ref?->code, 'name' => $child->ref?->name])
+                        ->map(fn($child) => ['code' => $child->ref?->code, 'name' => $child->ref?->name])
                         ->all();
                 }
             }
-            if (! empty($arguments['include_case'])) {
+            if (!empty($arguments['include_case'])) {
                 $data['relations']['case'] = $row->caseRegistration?->toArray();
             }
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\CaseTypeOfInjury;
@@ -55,7 +54,7 @@ class GetCaseTypeOfInjuriesTool implements ToolInterface
                     'type' => 'array',
                     'items' => ['type' => 'string', 'enum' => array_keys($this->allowedIncludes())],
                     'description' => 'Related data to eager-load, returned under each row\'s "relations" key. '
-                        . 'Options: case (the parent case registration with its status and source hospital).',
+                    . 'Options: case (the parent case registration with its status and source hospital).',
                 ],
                 'limit' => ['type' => 'integer', 'description' => 'Max rows to return (default 1000, max 1000).'],
             ],
@@ -92,7 +91,7 @@ class GetCaseTypeOfInjuriesTool implements ToolInterface
             $query->where('injury_code', $arguments['injury_code']);
         }
         if (isset($arguments['injury'])) {
-            $query->whereHas('injury', fn ($q) => $q->where('name', 'like', '%' . $arguments['injury'] . '%'));
+            $query->whereHas('injury', fn($q) => $q->where('name', 'like', '%' . $arguments['injury'] . '%'));
         }
         // Default to active rows unless the caller explicitly asks for all.
         $active = $arguments['active'] ?? true;
@@ -126,7 +125,7 @@ class GetCaseTypeOfInjuriesTool implements ToolInterface
     protected function resolveIncludes(array $arguments): array
     {
         $requested = $arguments['include'] ?? [];
-        if (! is_array($requested)) {
+        if (!is_array($requested)) {
             return [];
         }
 

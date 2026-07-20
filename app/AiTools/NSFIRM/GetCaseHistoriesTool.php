@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\CaseHistory;
@@ -69,9 +68,9 @@ class GetCaseHistoriesTool implements ToolInterface
                     'type' => 'array',
                     'items' => ['type' => 'string', 'enum' => array_keys($this->allowedIncludes())],
                     'description' => 'Related data to eager-load, returned under each row\'s "relations" key. '
-                        . 'Options: case (parent case registration with its current status and source hospital), '
-                        . 'status (the status moved into), previous_status (the status moved out of), '
-                        . 'user (who made the transition).',
+                    . 'Options: case (parent case registration with its current status and source hospital), '
+                    . 'status (the status moved into), previous_status (the status moved out of), '
+                    . 'user (who made the transition).',
                 ],
                 'limit' => ['type' => 'integer', 'description' => 'Max rows to return (default 1000, max 1000).'],
             ],
@@ -108,7 +107,7 @@ class GetCaseHistoriesTool implements ToolInterface
             $query->where('case_status', $arguments['case_status']);
         }
         if (isset($arguments['status'])) {
-            $query->whereHas('status', fn ($q) => $q->where('status_name', 'like', '%' . $arguments['status'] . '%'));
+            $query->whereHas('status', fn($q) => $q->where('status_name', 'like', '%' . $arguments['status'] . '%'));
         }
         if (isset($arguments['previous_case_status'])) {
             $query->where('previous_case_status', $arguments['previous_case_status']);
@@ -120,7 +119,7 @@ class GetCaseHistoriesTool implements ToolInterface
             $query->where('user_id', $arguments['user_id']);
         }
         if (isset($arguments['user_name'])) {
-            $query->whereHas('user', fn ($q) => $q->where('name', 'like', '%' . $arguments['user_name'] . '%'));
+            $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $arguments['user_name'] . '%'));
         }
         if (isset($arguments['remarks'])) {
             $query->where('remarks', 'like', '%' . $arguments['remarks'] . '%');
@@ -158,7 +157,7 @@ class GetCaseHistoriesTool implements ToolInterface
     protected function resolveIncludes(array $arguments): array
     {
         $requested = $arguments['include'] ?? [];
-        if (! is_array($requested)) {
+        if (!is_array($requested)) {
             return [];
         }
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\MediocolegalAspect;
@@ -74,8 +73,8 @@ class GetMedicolegalAspectsTool implements ToolInterface
                     'type' => 'array',
                     'items' => ['type' => 'string', 'enum' => array_keys($this->allowedIncludes())],
                     'description' => 'Related data to eager-load, returned under each row\'s "relations" key. '
-                        . 'Options: case (parent case registration with status and source hospital), '
-                        . 'finder_relationship, finder_identification_type, finder_city, finder_state.',
+                    . 'Options: case (parent case registration with status and source hospital), '
+                    . 'finder_relationship, finder_identification_type, finder_city, finder_state.',
                 ],
                 'limit' => ['type' => 'integer', 'description' => 'Max rows to return (default 1000, max 1000).'],
             ],
@@ -133,18 +132,18 @@ class GetMedicolegalAspectsTool implements ToolInterface
             $query->where('finder_relationship_code', $arguments['finder_relationship_code']);
         }
         if (isset($arguments['finder_relationship'])) {
-            $query->whereHas('finderRelationship', fn ($q) => $q->where('name', 'like', '%' . $arguments['finder_relationship'] . '%'));
+            $query->whereHas('finderRelationship', fn($q) => $q->where('name', 'like', '%' . $arguments['finder_relationship'] . '%'));
         }
         if (isset($arguments['finder_state_code'])) {
             $query->where('finder_state_code', $arguments['finder_state_code']);
         }
         if (isset($arguments['finder_state'])) {
-            $query->whereHas('finderState', fn ($q) => $q->where('name', 'like', '%' . $arguments['finder_state'] . '%'));
+            $query->whereHas('finderState', fn($q) => $q->where('name', 'like', '%' . $arguments['finder_state'] . '%'));
         }
         if (isset($arguments['has_police_report'])) {
             $arguments['has_police_report']
-                ? $query->whereNotNull('report_number')->where('report_number', '!=', '')
-                : $query->where(fn ($q) => $q->whereNull('report_number')->orWhere('report_number', ''));
+            ? $query->whereNotNull('report_number')->where('report_number', '!=', '')
+            : $query->where(fn($q) => $q->whereNull('report_number')->orWhere('report_number', ''));
         }
 
         $limit = min(max((int) ($arguments['limit'] ?? 1000), 1), 1000);
@@ -171,7 +170,7 @@ class GetMedicolegalAspectsTool implements ToolInterface
     protected function resolveIncludes(array $arguments): array
     {
         $requested = $arguments['include'] ?? [];
-        if (! is_array($requested)) {
+        if (!is_array($requested)) {
             return [];
         }
 

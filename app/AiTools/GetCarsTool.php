@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools;
 
 use App\Models\Car;

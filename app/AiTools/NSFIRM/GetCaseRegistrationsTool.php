@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\CaseRegistration;
@@ -69,9 +68,9 @@ class GetCaseRegistrationsTool implements ToolInterface
                     'type' => 'array',
                     'items' => ['type' => 'string', 'enum' => array_keys($this->allowedIncludes())],
                     'description' => 'Related data to eager-load, returned under each row\'s "relations" key. '
-                        . 'Options: specific_doctor (assigned doctor), source_hospital (source hospital with its state), '
-                        . 'deceased_information (deceased records on the case), '
-                        . 'type_of_injuries (recorded injuries with their names).',
+                    . 'Options: specific_doctor (assigned doctor), source_hospital (source hospital with its state), '
+                    . 'deceased_information (deceased records on the case), '
+                    . 'type_of_injuries (recorded injuries with their names).',
                 ],
                 'limit' => ['type' => 'integer', 'description' => 'Max rows to return (default 1000, max 1000).'],
             ],
@@ -118,7 +117,7 @@ class GetCaseRegistrationsTool implements ToolInterface
             $query->where('status_id', $arguments['status_id']);
         }
         if (isset($arguments['status'])) {
-            $query->whereHas('status', fn ($q) => $q->where('status_name', 'like', '%' . $arguments['status'] . '%'));
+            $query->whereHas('status', fn($q) => $q->where('status_name', 'like', '%' . $arguments['status'] . '%'));
         }
         if (isset($arguments['source_hospital_id'])) {
             $query->where('source_hospital_id', $arguments['source_hospital_id']);
@@ -163,7 +162,7 @@ class GetCaseRegistrationsTool implements ToolInterface
     protected function resolveIncludes(array $arguments): array
     {
         $requested = $arguments['include'] ?? [];
-        if (! is_array($requested)) {
+        if (!is_array($requested)) {
             return [];
         }
 

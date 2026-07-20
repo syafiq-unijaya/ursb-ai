@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\RiskFactorAddictionProblem;
@@ -76,7 +75,7 @@ class GetRiskFactorDetailsTool implements ToolInterface
                     'type' => 'string',
                     'enum' => ['current', 'past'],
                     'description' => 'Only for the mental_health_problem and mental_health_treatment categories: '
-                        . 'restrict to current or past records. Omitting this merges both.',
+                    . 'restrict to current or past records. Omitting this merges both.',
                 ],
                 'limit' => ['type' => 'integer', 'description' => 'Max rows to return (default 1000, max 1000).'],
             ],
@@ -95,7 +94,7 @@ class GetRiskFactorDetailsTool implements ToolInterface
         $categories = $this->categories();
         $category = (string) ($arguments['category'] ?? '');
 
-        if (! isset($categories[$category])) {
+        if (!isset($categories[$category])) {
             return [
                 'error' => 'Unknown category. Choose one of: ' . implode(', ', array_keys($categories)) . '.',
             ];
@@ -109,10 +108,10 @@ class GetRiskFactorDetailsTool implements ToolInterface
             $query->where('case_id', $arguments['case_id']);
         }
         if (isset($arguments['code'])) {
-            $query->whereHas('ref', fn ($q) => $q->where('code', $arguments['code']));
+            $query->whereHas('ref', fn($q) => $q->where('code', $arguments['code']));
         }
         if (isset($arguments['name'])) {
-            $query->whereHas('ref', fn ($q) => $q->where('name', 'like', '%' . $arguments['name'] . '%'));
+            $query->whereHas('ref', fn($q) => $q->where('name', 'like', '%' . $arguments['name'] . '%'));
         }
         // Only the two mental-health tables carry this discriminator; ignore it elsewhere
         // so a stray argument cannot produce an unknown-column error.

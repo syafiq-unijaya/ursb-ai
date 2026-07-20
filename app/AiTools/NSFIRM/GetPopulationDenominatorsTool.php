@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\RefOverallPopulation;
@@ -70,7 +69,7 @@ class GetPopulationDenominatorsTool implements ToolInterface
                     'type' => 'array',
                     'items' => ['type' => 'string', 'enum' => ['state', 'district', 'gender', 'ethnicity', 'age_band']],
                     'description' => 'Split the total by these dimensions. Anything not listed is collapsed to its '
-                        . 'total, so the returned figures always sum to the overall population without double counting.',
+                    . 'total, so the returned figures always sum to the overall population without double counting.',
                 ],
                 'limit' => ['type' => 'integer', 'description' => 'Max grouped rows to return (default 200, max 1000).'],
             ],
@@ -89,7 +88,7 @@ class GetPopulationDenominatorsTool implements ToolInterface
         $year = (int) ($arguments['year'] ?? 2024);
         $breakdown = array_values(array_filter(
             (array) ($arguments['breakdown_by'] ?? []),
-            fn ($d) => in_array($d, ['state', 'district', 'gender', 'ethnicity', 'age_band'], true)
+            fn($d) => in_array($d, ['state', 'district', 'gender', 'ethnicity', 'age_band'], true)
         ));
 
         $query = RefOverallPopulation::query()
@@ -110,7 +109,7 @@ class GetPopulationDenominatorsTool implements ToolInterface
         // unless the caller asked to break gender out.
         if (isset($arguments['gender'])) {
             $query->where('gender_code', $this->genderCodes[$arguments['gender']] ?? '00');
-        } elseif (! in_array('gender', $breakdown, true)) {
+        } elseif (!in_array('gender', $breakdown, true)) {
             $query->where('gender_code', $this->dimensions['gender']['total']);
         } else {
             // Breaking out gender means excluding the combined row, or it double counts.
@@ -119,7 +118,7 @@ class GetPopulationDenominatorsTool implements ToolInterface
 
         if (isset($arguments['ethnicity'])) {
             $query->where('ethnic', $arguments['ethnicity']);
-        } elseif (! in_array('ethnicity', $breakdown, true)) {
+        } elseif (!in_array('ethnicity', $breakdown, true)) {
             $query->where('ethnic', $this->dimensions['ethnicity']['total']);
         } else {
             $query->where('ethnic', '!=', $this->dimensions['ethnicity']['total']);
@@ -136,7 +135,7 @@ class GetPopulationDenominatorsTool implements ToolInterface
             if (isset($arguments['age_max'])) {
                 $query->whereRaw('CAST(range_min AS UNSIGNED) <= ?', [(int) $arguments['age_max']]);
             }
-        } elseif (! in_array('age_band', $breakdown, true)) {
+        } elseif (!in_array('age_band', $breakdown, true)) {
             $query->where('range_min', $this->dimensions['age_band']['total']);
         } else {
             $query->where('range_min', '!=', $this->dimensions['age_band']['total']);
@@ -155,12 +154,12 @@ class GetPopulationDenominatorsTool implements ToolInterface
         $limit = min(max((int) ($arguments['limit'] ?? 200), 1), 1000);
 
         $rows = $query->selectRaw(implode(', ', $groupColumns) . ', SUM(population) AS population')
-            ->groupBy(array_map(fn ($c) => explode(' AS ', $c)[0], $groupColumns))
+            ->groupBy(array_map(fn($c) => explode(' AS ', $c)[0], $groupColumns))
             ->orderByDesc('population')
             ->limit($limit)
             ->get()
             ->map(function ($row) use ($breakdown) {
-                $data = $row->only(array_map(fn ($d) => $this->outputKey($d), $breakdown));
+                $data = $row->only(array_map(fn($d) => $this->outputKey($d), $breakdown));
                 if (in_array('gender', $breakdown, true)) {
                     $data['gender'] = $row->gender;
                 }
@@ -232,13 +231,13 @@ class GetPopulationDenominatorsTool implements ToolInterface
         foreach (['gender', 'ethnicity'] as $dimension) {
             if (isset($arguments[$dimension])) {
                 $applied[$dimension] = (string) $arguments[$dimension];
-            } elseif (! in_array($dimension, $breakdown, true)) {
+            } elseif (!in_array($dimension, $breakdown, true)) {
                 $applied[$dimension] = 'all combined';
             }
         }
         if (isset($arguments['age_min']) || isset($arguments['age_max'])) {
             $applied['age_band'] = ($arguments['age_min'] ?? 0) . '-' . ($arguments['age_max'] ?? 'max');
-        } elseif (! in_array('age_band', $breakdown, true)) {
+        } elseif (!in_array('age_band', $breakdown, true)) {
             $applied['age_band'] = 'all ages';
         }
         foreach (['state', 'state_code', 'district'] as $key) {

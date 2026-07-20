@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\DeceasedInformation;
@@ -95,13 +94,13 @@ class GetDeceasedInformationsTool implements ToolInterface
                     'type' => 'array',
                     'items' => ['type' => 'string', 'enum' => array_keys($this->allowedIncludes())],
                     'description' => 'Related lookups to eager-load, returned under each row\'s "relations" key. '
-                        . 'Options: case, identification_type, postcode, marital_status, ethnic, '
-                        . 'education_level, occupation_status, occupation_sector, occupation_type, '
-                        . 'next_of_kin_relationship, next_of_kin_identification_type, next_of_kin_city, '
-                        . 'next_of_kin_state, next_of_kin_postcode, death_presentation, ward, '
-                        . 'certified_by_designation, certified_by_certifier_designation, '
-                        . 'place_of_incident_city, place_of_incident_state, place_of_incident. '
-                        . '(gender, nationality, state, city, religion and manner of death are always returned as labels.)',
+                    . 'Options: case, identification_type, postcode, marital_status, ethnic, '
+                    . 'education_level, occupation_status, occupation_sector, occupation_type, '
+                    . 'next_of_kin_relationship, next_of_kin_identification_type, next_of_kin_city, '
+                    . 'next_of_kin_state, next_of_kin_postcode, death_presentation, ward, '
+                    . 'certified_by_designation, certified_by_certifier_designation, '
+                    . 'place_of_incident_city, place_of_incident_state, place_of_incident. '
+                    . '(gender, nationality, state, city, religion and manner of death are always returned as labels.)',
                 ],
                 'limit' => ['type' => 'integer', 'description' => 'Max rows to return (default 1000, max 1000).'],
             ],
@@ -152,37 +151,37 @@ class GetDeceasedInformationsTool implements ToolInterface
             $query->where('gender_code', $arguments['gender_code']);
         }
         if (isset($arguments['gender'])) {
-            $query->whereHas('gender', fn ($q) => $q->where('name', 'like', '%' . $arguments['gender'] . '%'));
+            $query->whereHas('gender', fn($q) => $q->where('name', 'like', '%' . $arguments['gender'] . '%'));
         }
         if (isset($arguments['nationality_code'])) {
             $query->where('nationality_code', $arguments['nationality_code']);
         }
         if (isset($arguments['nationality'])) {
-            $query->whereHas('nationality', fn ($q) => $q->where('name', 'like', '%' . $arguments['nationality'] . '%'));
+            $query->whereHas('nationality', fn($q) => $q->where('name', 'like', '%' . $arguments['nationality'] . '%'));
         }
         if (isset($arguments['state_code'])) {
             $query->where('state_code', $arguments['state_code']);
         }
         if (isset($arguments['state'])) {
-            $query->whereHas('state', fn ($q) => $q->where('name', 'like', '%' . $arguments['state'] . '%'));
+            $query->whereHas('state', fn($q) => $q->where('name', 'like', '%' . $arguments['state'] . '%'));
         }
         if (isset($arguments['city_code'])) {
             $query->where('city_code', $arguments['city_code']);
         }
         if (isset($arguments['city'])) {
-            $query->whereHas('city', fn ($q) => $q->where('name', 'like', '%' . $arguments['city'] . '%'));
+            $query->whereHas('city', fn($q) => $q->where('name', 'like', '%' . $arguments['city'] . '%'));
         }
         if (isset($arguments['religion_code'])) {
             $query->where('religion_code', $arguments['religion_code']);
         }
         if (isset($arguments['religion'])) {
-            $query->whereHas('religion', fn ($q) => $q->where('name', 'like', '%' . $arguments['religion'] . '%'));
+            $query->whereHas('religion', fn($q) => $q->where('name', 'like', '%' . $arguments['religion'] . '%'));
         }
         if (isset($arguments['manner_of_death'])) {
             $query->where('manner_of_death', $arguments['manner_of_death']);
         }
         if (isset($arguments['manner_of_death_name'])) {
-            $query->whereHas('mannerOfDeath', fn ($q) => $q->where('name', 'like', '%' . $arguments['manner_of_death_name'] . '%'));
+            $query->whereHas('mannerOfDeath', fn($q) => $q->where('name', 'like', '%' . $arguments['manner_of_death_name'] . '%'));
         }
         if (isset($arguments['date_of_death'])) {
             $query->whereDate('date_of_death', $arguments['date_of_death']);
@@ -226,7 +225,7 @@ class GetDeceasedInformationsTool implements ToolInterface
     protected function resolveIncludes(array $arguments): array
     {
         $requested = $arguments['include'] ?? [];
-        if (! is_array($requested)) {
+        if (!is_array($requested)) {
             return [];
         }
 

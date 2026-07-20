@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\RiskFactor;
@@ -112,9 +111,9 @@ class GetRiskFactorsTool implements ToolInterface
             'type' => 'array',
             'items' => ['type' => 'string', 'enum' => array_keys($this->allowedIncludes())],
             'description' => 'Related data to eager-load, returned under each row\'s "relations" key. '
-                . 'Options: case (parent case registration with status and source hospital), and the coded '
-                . 'detail rows behind each flag: mental_health_problems, mental_health_treatments, suicide_attempts, '
-                . 'suicide_notes, physical_health_problems, social_problems, addiction_problems, legal_problems.',
+            . 'Options: case (parent case registration with status and source hospital), and the coded '
+            . 'detail rows behind each flag: mental_health_problems, mental_health_treatments, suicide_attempts, '
+            . 'suicide_notes, physical_health_problems, social_problems, addiction_problems, legal_problems.',
         ];
         $properties['limit'] = ['type' => 'integer', 'description' => 'Max rows to return (default 1000, max 1000).'];
 
@@ -152,11 +151,11 @@ class GetRiskFactorsTool implements ToolInterface
         }
 
         foreach ($this->flags as $flag => $column) {
-            if (! isset($arguments[$flag])) {
+            if (!isset($arguments[$flag])) {
                 continue;
             }
             $answer = (string) $arguments[$flag];
-            if (! array_key_exists($answer, $this->answerValues)) {
+            if (!array_key_exists($answer, $this->answerValues)) {
                 continue;
             }
             $value = $this->answerValues[$answer];
@@ -164,7 +163,7 @@ class GetRiskFactorsTool implements ToolInterface
             $value === null ? $query->whereNull($column) : $query->where($column, $value);
         }
 
-        if (! empty($arguments['completed_only'])) {
+        if (!empty($arguments['completed_only'])) {
             foreach (range(1, 7) as $n) {
                 $query->where('completion_flag_' . $n, 1);
             }
@@ -219,11 +218,11 @@ class GetRiskFactorsTool implements ToolInterface
         foreach (array_keys($this->flags) as $flag) {
             $values = $rows->pluck($flag);
             $counts[$flag] = [
-                'yes' => $values->filter(fn ($v) => $v === 'yes')->count(),
-                'no' => $values->filter(fn ($v) => $v === 'no')->count(),
-                'unknown' => $values->filter(fn ($v) => $v === 'unknown')->count(),
-                'unanswered' => $values->filter(fn ($v) => $v === 'unanswered')->count(),
-                'answered_total' => $values->filter(fn ($v) => $v !== 'unanswered')->count(),
+                'yes' => $values->filter(fn($v) => $v === 'yes')->count(),
+                'no' => $values->filter(fn($v) => $v === 'no')->count(),
+                'unknown' => $values->filter(fn($v) => $v === 'unknown')->count(),
+                'unanswered' => $values->filter(fn($v) => $v === 'unanswered')->count(),
+                'answered_total' => $values->filter(fn($v) => $v !== 'unanswered')->count(),
             ];
         }
 
@@ -238,7 +237,7 @@ class GetRiskFactorsTool implements ToolInterface
     protected function resolveIncludes(array $arguments): array
     {
         $requested = $arguments['include'] ?? [];
-        if (! is_array($requested)) {
+        if (!is_array($requested)) {
             return [];
         }
 

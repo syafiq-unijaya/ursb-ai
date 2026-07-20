@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\CaseRegistration;
@@ -104,9 +103,9 @@ class GetNsfirmStatisticsTool implements ToolInterface
                     'type' => 'string',
                     'enum' => array_values(array_unique($groupOptions)),
                     'description' => 'Dimension to group by. deceased: manner_of_death, gender, nationality, state, religion, '
-                        . 'ethnic, marital_status, place_of_incident, year_of_death, month_of_death. '
-                        . 'cases: status, hospital, case_type, court_ruling, year_registered, month_registered. '
-                        . 'injuries: injury, active.',
+                    . 'ethnic, marital_status, place_of_incident, year_of_death, month_of_death. '
+                    . 'cases: status, hospital, case_type, court_ruling, year_registered, month_registered. '
+                    . 'injuries: injury, active.',
                 ],
                 'date_from' => ['type' => 'string', 'description' => 'Count records on/after this date (YYYY-MM-DD). deceased=date_of_death, cases=date_register.'],
                 'date_to' => ['type' => 'string', 'description' => 'Count records on/before this date (YYYY-MM-DD).'],
@@ -138,17 +137,17 @@ class GetNsfirmStatisticsTool implements ToolInterface
         $datasets = $this->datasets();
 
         $dataset = $arguments['dataset'] ?? null;
-        if (! is_string($dataset) || ! isset($datasets[$dataset])) {
+        if (!is_string($dataset) || !isset($datasets[$dataset])) {
             return [
                 'available_datasets' => array_keys($datasets),
-                'group_by_options' => array_map(fn ($d) => array_keys($d['groups']), $datasets),
+                'group_by_options' => array_map(fn($d) => array_keys($d['groups']), $datasets),
                 'hint' => 'Call again with dataset and group_by.',
             ];
         }
 
         $cfg = $datasets[$dataset];
         $groupBy = $arguments['group_by'] ?? null;
-        if (! is_string($groupBy) || ! isset($cfg['groups'][$groupBy])) {
+        if (!is_string($groupBy) || !isset($cfg['groups'][$groupBy])) {
             return [
                 'error' => "Invalid or missing group_by for dataset '{$dataset}'.",
                 'group_by_options' => array_keys($cfg['groups']),
@@ -217,7 +216,7 @@ class GetNsfirmStatisticsTool implements ToolInterface
      */
     protected function applyFilters(Builder $query, string $dataset, array $args): void
     {
-        $like = fn (string $rel, string $col, string $val) => $query->whereHas($rel, function ($q) use ($col, $val) {
+        $like = fn(string $rel, string $col, string $val) => $query->whereHas($rel, function ($q) use ($col, $val) {
             $q->where($col, 'like', '%' . $val . '%');
         });
 

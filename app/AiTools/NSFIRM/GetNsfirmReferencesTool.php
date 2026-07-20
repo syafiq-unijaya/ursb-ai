@@ -1,5 +1,4 @@
 <?php
-
 namespace App\AiTools\NSFIRM;
 
 use App\Models\NSFIRM\RefCertifierDesignation;
@@ -106,7 +105,7 @@ class GetNsfirmReferencesTool implements ToolInterface
 
         // No/unknown reference: help the AI discover what's available.
         $key = $arguments['reference'] ?? null;
-        if (! is_string($key) || ! isset($references[$key])) {
+        if (!is_string($key) || !isset($references[$key])) {
             return [
                 'available_references' => array_keys($references),
                 'hint' => 'Call again with reference=<one of the above>, optionally with search to narrow.',
