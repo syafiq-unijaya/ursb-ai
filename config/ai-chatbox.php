@@ -554,6 +554,12 @@ return [
         \App\AiTools\NSFIRM\GetCaseTypeOfInjuriesTool::class,
         \App\AiTools\NSFIRM\GetNsfirmReferencesTool::class,
         \App\AiTools\NSFIRM\GetNsfirmStatisticsTool::class,
+        \App\AiTools\NSFIRM\GetInjuryDetailsTool::class,
+        \App\AiTools\NSFIRM\GetRiskFactorsTool::class,
+        \App\AiTools\NSFIRM\GetRiskFactorDetailsTool::class,
+        \App\AiTools\NSFIRM\GetMedicolegalAspectsTool::class,
+        \App\AiTools\NSFIRM\GetCaseHistoriesTool::class,
+        \App\AiTools\NSFIRM\GetPopulationDenominatorsTool::class,
     ],
 
 /*
