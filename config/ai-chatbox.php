@@ -560,6 +560,7 @@ return [
         \App\AiTools\NSFIRM\GetMedicolegalAspectsTool::class,
         \App\AiTools\NSFIRM\GetCaseHistoriesTool::class,
         \App\AiTools\NSFIRM\GetPopulationDenominatorsTool::class,
+        \App\AiTools\NSFIRM\GetMortalityRateTool::class,
     ],
 
 /*
