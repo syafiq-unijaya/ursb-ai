@@ -32,7 +32,7 @@ return [
 | Publish the config to change: php artisan vendor:publish --tag=ai-chatbox-config
 */
 
-    'language' => 'English',
+    'language' => env('AI_CHATBOX_LANGUAGE', 'English'),
 
 /*
 |--------------------------------------------------------------------------
@@ -186,7 +186,7 @@ return [
 | Set to false to display replies as plain text.
 */
 
-    'markdown' => true,
+    'markdown' => env('AI_CHATBOX_MARKDOWN', true),
 
 /*
 |--------------------------------------------------------------------------
@@ -225,7 +225,7 @@ return [
 */
 
     'history_enabled' => env('AI_CHATBOX_HISTORY', true),
-    'history_limit' => 50,
+    'history_limit' => (int) env('AI_CHATBOX_HISTORY_LIMIT', 50),
 
 /*
 |--------------------------------------------------------------------------
@@ -270,13 +270,15 @@ return [
 |--------------------------------------------------------------------------
 | Controls where chat history is persisted in the browser.
 |
-| 'local'   — localStorage: survives tab/browser close (default)
-| 'session' — sessionStorage: cleared when the tab is closed (more private)
+| 'session' — sessionStorage: cleared when the tab is closed (default, private)
+| 'local'   — localStorage: survives tab/browser close (persists indefinitely)
 |
-| Use 'session' for apps where users may discuss sensitive information.
+| The default is 'session' so a transcript is not left behind on a shared
+| machine after the user leaves. Set AI_CHATBOX_STORAGE=local to persist chat
+| history across browser sessions if that is acceptable for your app.
 */
 
-    'storage' => 'local',
+    'storage' => env('AI_CHATBOX_STORAGE', 'session'),
 
 /*
 |--------------------------------------------------------------------------
@@ -305,6 +307,20 @@ return [
 
 /*
 |--------------------------------------------------------------------------
+| Transient-failure retries
+|--------------------------------------------------------------------------
+| The engine retries a failed provider request on transient conditions —
+| HTTP 408/429/500/502/503/504/529 and connection errors — honouring a
+| Retry-After header when present, otherwise exponential backoff from
+| retry_base_delay_ms. Non-retryable errors (other 4xx) are never retried.
+| Set max_retries to 0 to disable retries entirely.
+*/
+
+    'max_retries' => (int) env('AI_CHATBOX_MAX_RETRIES', 2),
+    'retry_base_delay_ms' => (int) env('AI_CHATBOX_RETRY_BASE_DELAY_MS', 500),
+
+/*
+|--------------------------------------------------------------------------
 | RAG — Retrieval-Augmented Generation
 |--------------------------------------------------------------------------
 | When enabled, the chatbox retrieves relevant context from your uploaded
@@ -329,6 +345,11 @@ return [
 
     'rag_enabled' => env('AI_CHATBOX_RAG', false),
     'rag_embedding_timeout' => (int) env('AI_CHATBOX_EMBEDDING_TIMEOUT', 10),
+    // Chunks per embedding request. The /embeddings API accepts an array of
+    // inputs, so batching cuts ingestion from one HTTP call per chunk to one
+    // per batch. Any chunk a batch can't embed falls back to a single call, so
+    // endpoints that don't support array input still work. Set to 1 to disable.
+    'rag_embedding_batch_size' => (int) env('AI_CHATBOX_EMBEDDING_BATCH_SIZE', 32),
     'rag_top_k' => 10,
     'rag_chunk_size' => 500,
     'rag_chunk_overlap' => 50,
@@ -358,6 +379,22 @@ return [
         'have', 'has', 'had', 'does', 'did',
         'for', 'and', 'but', 'not', 'you', 'your',
     ],
+/*
+|--------------------------------------------------------------------------
+| Admin & Knowledge Base access
+|--------------------------------------------------------------------------
+| Middleware protecting the admin dashboard and the RAG (Knowledge Base)
+| pages. The default [web, auth] means "any logged-in user" — fine for local
+| testing, but NOT authorization. For that reason the package FAILS CLOSED:
+| outside the local/testing environment, if either gate is left at the exact
+| bare default [web, auth], the routes return 403 until you configure a real
+| gate here. Set a role/permission/policy middleware appropriate to your app,
+| e.g. 'role:admin' (Spatie), 'can:manage-ai-chatbox' (Laravel Gate), or a
+| custom middleware. Any customisation disables the tripwire.
+|
+| admin_middleware = null inherits rag_admin_middleware.
+*/
+
     'rag_admin_middleware' => ['web', 'auth'],
     'admin_middleware' => null, // null = inherit rag_admin_middleware
 
@@ -443,7 +480,7 @@ return [
 | Only applies when memory_driver=database.
 */
 
-    'conversation_prune_days' => 30,
+    'conversation_prune_days' => (int) env('AI_CHATBOX_PRUNE_DAYS', 30),
 
 /*
 |--------------------------------------------------------------------------
@@ -454,14 +491,22 @@ return [
 | call to the embedding API, so large documents on slow local models can
 | easily exceed PHP's default 30-second limit.
 |
-| 0 = no limit (recommended for local models, default)
-| 300 = 5 minutes (a safe upper bound for most use cases)
+| 300 = 5 minutes (the default — a safe upper bound so one slow upload can't
+|       pin a PHP-FPM worker indefinitely)
+| 0   = no limit (only for slow local models you fully control)
 |
 | This only affects the RAG admin upload/reprocess request — all other
-| requests use the normal PHP max_execution_time.
+| requests use the normal PHP max_execution_time. Also see
+| rag_max_chunks_per_document below, which bounds work regardless of timeout.
 */
 
-    'rag_processing_timeout' => (int) env('AI_CHATBOX_RAG_PROCESSING_TIMEOUT', 0),
+    'rag_processing_timeout' => (int) env('AI_CHATBOX_RAG_PROCESSING_TIMEOUT', 300),
+
+    // Hard cap on the number of chunks stored per document. A huge upload at a
+    // small chunk size can otherwise produce tens of thousands of chunks (and
+    // embedding HTTP calls), exhausting workers. Chunks beyond this are dropped
+    // with a warning. 0 = no cap.
+    'rag_max_chunks_per_document' => (int) env('AI_CHATBOX_RAG_MAX_CHUNKS', 5000),
 
 /*
 |--------------------------------------------------------------------------
